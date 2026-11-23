@@ -2,6 +2,25 @@
 
 **Play it in your browser: https://lanrat.github.io/point236/**
 
+## About the game
+
+Point 236 is a freeware 3D action shooter by Czech programmer **Miroslav Němeček**.
+You are a soldier of the Blacks army, sent to drive insect invaders off your land and
+recapture an ancient curative spring code-named Point 236. Němeček wrote it in 2001 for
+the *Becherovka Game 2001* competition, run by the Jan Becher company, where it took
+second place overall.
+
+The game was made with **Peter** ("Petr"), Němeček's visual programming tool for
+children, first released in 1999 under the Gemtree name. A Peter program ships as a
+Windows EXE that bundles the Peter runtime with the program itself. This port compiles
+that runtime (version 2.50) for the browser and runs the original game data unchanged.
+
+- [Peter: history and downloads](https://breatharian.eu/Petr/en/download.htm) (author's site)
+- [Programs made with Peter](http://www.breatharian.eu/Petr/en/program/all.htm), including the original Point 236 download
+- [Němeček's software page](https://breatharian.eu/sw/index_en.html)
+
+## The port
+
 `loader/` is the original Peter 2.50 Loader (runtime) source by Miroslav Němeček
 (https://breatharian.eu/Petr/en/download.htm). File names are lowercased and include
 paths normalised. Changes for wasm:
