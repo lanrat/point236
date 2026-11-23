@@ -1052,6 +1052,11 @@ EM_JS(char*, jsw_make_cursor, (int w, int h, int hx, int hy, const uint32_t* rgb
 	var c = document.createElement('canvas'); c.width = w; c.height = h;
 	var ctx = c.getContext('2d'); var img = ctx.createImageData(w, h);
 	img.data.set(HEAPU8.subarray(rgba, rgba + w * h * 4)); ctx.putImageData(img, 0, 0);
+	// A fully transparent cursor is how programs hide the pointer for mouse-look: report it
+	// as 'none' so the page switches to relative (pointer-lock) mouse input.
+	var visible = false;
+	for (var i = 3; i < img.data.length; i += 4) if (img.data[i]) { visible = true; break; }
+	if (!visible) return stringToNewUTF8('none');
 	var s = 'url(' + c.toDataURL() + ') ' + hx + ' ' + hy + ', default';
 	return stringToNewUTF8(s);
 });

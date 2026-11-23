@@ -35,7 +35,7 @@ function charToAnsi(ch) {
 }
 
 var PeterWin = {
-	els: {}, desk: null, root: null, sw: 1024, sh: 768, scale: 1, offX: 0, offY: 0,
+	els: {}, desk: null, root: null, sw: 1024, sh: 768, scale: 1, offX: 0, offY: 0, fx: 0, fy: 0, lastWin: 0,
 	cursorCss: 'default', modals: {}, nextModal: 1, warpCount: 0, locked: false, vx: 0, vy: 0, buttons: 0,
 	textCanvas: null, textCtx: null,
 
@@ -218,7 +218,11 @@ var PeterWin = {
 	front: function (id) { var e = this.els[id]; if (!e || e.parent) return; this.desk.appendChild(e.div); },
 	font: function (id, css) { var e = this.els[id]; if (!e) return; var f = css.split('|'); e.div.style.font = f[f.length - 1]; },
 	readonly: function (id, ro) { var e = this.els[id]; if (e && e.ctl && 'readOnly' in e.ctl) e.ctl.readOnly = !!ro; },
-	cursor: function (css) { this.cursorCss = css; this.desk.style.cursor = css; },
+	cursor: function (css) {
+		this.cursorCss = css; this.desk.style.cursor = css;
+		// program shows the pointer again (menus): leave mouse-look so absolute clicks work
+		if (css !== 'none' && this.locked && document.exitPointerLock) document.exitPointerLock();
+	},
 
 	// ---- GDI canvas
 	blit: function (id, ptr, w, h, l, t, r, b) {
@@ -281,8 +285,17 @@ var PeterWin = {
 	},
 
 	// ---- input
+	// Relative mouse mode: the program hid the cursor and has warped it (mouse-look). Browsers
+	// cannot warp the real pointer, so the virtual cursor moves by movementX/Y from the warp point.
+	relative: function () { return this.locked || (this.cursorCss === 'none' && this.warpCount > 0); },
+	tryLock: function (id) {
+		if (id > 0 && this.cursorCss === 'none' && this.warpCount > 0 && !this.locked && this.root.requestPointerLock) {
+			this.lockWin = id;
+			try { var r = this.root.requestPointerLock(); if (r && r.catch) r.catch(function () {}); } catch (x) {}
+		}
+	},
 	deskPos: function (ev) {
-		if (this.locked) return [this.vx, this.vy];
+		if (this.relative()) return [this.vx, this.vy];
 		var r = this.root.getBoundingClientRect();
 		return [Math.round((ev.clientX - r.left - this.offX) / this.scale), Math.round((ev.clientY - r.top - this.offY) / this.scale)];
 	},
@@ -299,7 +312,9 @@ var PeterWin = {
 		var self = this, root = this.root;
 		var send = function (ev, msg) {
 			var p = self.deskPos(ev); self.vx = p[0]; self.vy = p[1];
+			if (!self.relative()) { self.fx = p[0]; self.fy = p[1]; }
 			var id = self.locked ? (self.lockWin || 0) : self.targetWin(ev);
+			if (id > 0) self.lastWin = id;
 			if (id <= 0) { Module._shim_on_mouse(0, 0, p[0], p[1], self.buttons); return; }
 			Module._shim_on_mouse(id, msg, p[0], p[1], self.buttons);
 		};
@@ -308,7 +323,7 @@ var PeterWin = {
 			self.buttons |= (ev.button === 0 ? 1 : ev.button === 2 ? 2 : 4);
 			var id = self.targetWin(ev);
 			if (id > 0) ev.preventDefault();
-			if (id > 0 && self.cursorCss === 'none' && self.warpCount > 2 && !self.locked && root.requestPointerLock) { self.lockWin = id; try { root.requestPointerLock(); } catch (x) {} }
+			self.tryLock(id);
 			var dbl = ev.detail === 2;
 			var msg = ev.button === 0 ? (dbl ? 0x203 : 0x201) : ev.button === 2 ? (dbl ? 0x206 : 0x204) : (dbl ? 0x209 : 0x207);
 			send(ev, msg);
@@ -319,7 +334,11 @@ var PeterWin = {
 			send(ev, ev.button === 0 ? 0x202 : ev.button === 2 ? 0x205 : 0x208);
 		});
 		window.addEventListener('mousemove', function (ev) {
-			if (self.locked) { self.vx += ev.movementX / self.scale; self.vy += ev.movementY / self.scale; self.vx = Math.round(self.vx); self.vy = Math.round(self.vy); }
+			if (self.relative()) {
+				// keep the fractional part so slow movements are not lost to rounding
+				self.fx += (ev.movementX || 0) / self.scale; self.fy += (ev.movementY || 0) / self.scale;
+				self.vx = Math.round(self.fx); self.vy = Math.round(self.fy);
+			}
 			send(ev, 0x200);
 		});
 		root.addEventListener('contextmenu', function (ev) { ev.preventDefault(); });
@@ -341,11 +360,11 @@ var PeterWin = {
 			Module._shim_on_key(vk, down ? 1 : 0, ev.repeat ? 1 : 0, SCAN[ev.code] || 0, inText ? 0 : ch, targetId);
 			if (!inText && !(ev.ctrlKey && (ev.key === 'r' || ev.key === 'R')) && ev.key !== 'F5' && ev.key !== 'F11' && ev.key !== 'F12') ev.preventDefault();
 		};
-		window.addEventListener('keydown', function (ev) { PeterAudio.unlock(); key(ev, true); });
+		window.addEventListener('keydown', function (ev) { PeterAudio.unlock(); if (ev.key !== 'Escape') self.tryLock(self.lastWin || 0); key(ev, true); });
 		window.addEventListener('keyup', function (ev) { key(ev, false); });
 		window.addEventListener('blur', function () { if (Module._shim_on_blur) Module._shim_on_blur(); });
 	},
-	warp: function (x, y) { this.warpCount++; this.vx = x; this.vy = y; },
+	warp: function (x, y) { this.warpCount++; this.vx = this.fx = x; this.vy = this.fy = y; },
 	pointerLock: function (on) {},
 
 	// ---- modal dialogs (message boxes, file dialogs)
