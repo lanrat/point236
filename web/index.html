@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Point 236</title>
+<link rel="icon" href="data:,">
+<style>
+	html, body { margin: 0; height: 100%; background: #101418; overflow: hidden; font-family: Tahoma, "Segoe UI", Arial, sans-serif; }
+	#screen { position: absolute; inset: 0; overflow: hidden; }
+	.pdesk { position: absolute; left: 0; top: 0; width: 1024px; height: 768px; transform-origin: 0 0; background: transparent; }
+	.pw { position: absolute; box-sizing: border-box; font: 11px Tahoma, Arial, sans-serif; color: #000; }
+	.pdesk > .pw { background: #d4d0c8; }
+	.pdesk > .pw.thick, .pdesk > .pw.cap { border: 1px solid; border-color: #d4d0c8 #404040 #404040 #d4d0c8; box-shadow: inset 1px 1px #fff, inset -1px -1px #808080; }
+	.pw.bord:not(.cap) { border: 1px solid #000; }
+	.pw.cedge { border: 2px inset #d4d0c8; background: #fff; }
+	.pcl { position: absolute; overflow: hidden; }
+	.pcap { position: absolute; height: 18px; background: linear-gradient(90deg, #0a246a, #a6caf0); color: #fff; font: bold 11px Tahoma, Arial, sans-serif;
+		display: flex; align-items: center; padding-left: 4px; box-sizing: border-box; user-select: none; cursor: default; }
+	.pcap.static { position: static; }
+	.ptitle { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+	.pclose { width: 16px; height: 14px; margin-right: 2px; padding: 0; font: bold 9px Arial; line-height: 12px; background: #d4d0c8; color: #000;
+		border: 1px solid; border-color: #fff #404040 #404040 #fff; }
+	canvas.pgdi, canvas.pgl { position: absolute; left: 0; top: 0; image-rendering: pixelated; }
+	.pcl > .pw { z-index: 1; }
+	.pbtn { width: 100%; height: 100%; font: inherit; background: #d4d0c8; border: 2px outset #f0f0f0; padding: 0 4px; color: #000; }
+	.pbtn:active, .pbtn.pressed { border-style: inset; }
+	.pbtn.def { outline: 1px solid #000; outline-offset: -1px; }
+	.pbtn:focus-visible { outline: 1px dotted #000; outline-offset: -4px; }
+	.pchk { display: flex; align-items: center; gap: 3px; width: 100%; height: 100%; white-space: nowrap; overflow: hidden; }
+	.pchk input { margin: 0 2px; }
+	.pgrp { margin: 0; position: absolute; inset: 6px 0 0 0; border: 2px groove #fff; padding: 0; }
+	.pgrp legend { padding: 0 2px; margin-left: 6px; position: absolute; top: -8px; background: #d4d0c8; font: inherit; }
+	.pedit { width: 100%; height: 100%; box-sizing: border-box; font: inherit; border: 2px inset #d4d0c8; padding: 1px 3px; background: #fff; }
+	.pmemo { resize: none; }
+	.plist, .pcombo { width: 100%; height: 100%; box-sizing: border-box; font: inherit; border: 2px inset #d4d0c8; background: #fff; }
+	.pcombo { height: 21px; }
+	.pstatic { width: 100%; height: 100%; white-space: pre-wrap; overflow: hidden; }
+	.pstatic.center { text-align: center; } .pstatic.right { text-align: right; }
+	.prange { width: 100%; height: 100%; margin: 0; }
+	.prange.vert { writing-mode: vertical-lr; direction: rtl; }
+	.pprog { width: 100%; height: 100%; }
+	.pstatus { width: 100%; height: 100%; border-top: 1px solid #808080; padding: 2px 4px; box-sizing: border-box; white-space: nowrap; }
+	.ptabs { display: flex; gap: 1px; border-bottom: 1px solid #808080; } .ptab { font: inherit; border: 1px solid #808080; border-bottom: 0; background: #d4d0c8; } .ptab.on { background: #fff; }
+	.pw.disabled { color: #808080; }
+	.pmodal { position: absolute; inset: 0; background: rgba(0,0,0,.25); display: flex; align-items: center; justify-content: center; z-index: 100; }
+	.pmbox { background: #d4d0c8; border: 2px outset #f0f0f0; min-width: 260px; max-width: 80%; font: 12px Tahoma, Arial, sans-serif; }
+	.pmbox .pcap { height: 20px; }
+	.pmbody { padding: 12px 14px 6px; }
+	.pmtext { white-space: pre-wrap; padding-left: 4px; }
+	.pmtext.err::before { content: "\26D4  "; } .pmtext.warn::before { content: "\26A0\FE0F  "; } .pmtext.info::before { content: "\2139\FE0F  "; } .pmtext.ask::before { content: "\2753  "; }
+	.pmbtns { display: flex; gap: 8px; justify-content: center; padding: 8px 12px 12px; }
+	.pmbtns .pbtn { width: 80px; height: 24px; }
+	.pmdir { color: #333; margin-bottom: 4px; }
+	.pmlist { height: 140px; margin-bottom: 6px; }
+	.pmname { height: 24px; }
+	.pfatal { position: absolute; left: 50%; top: 40%; transform: translate(-50%,-50%); color: #fff; background: #800; padding: 16px 24px; font: 14px sans-serif; }
+	#start { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 14px; align-items: center; justify-content: center; color: #e8e8e8; z-index: 200;
+		background: radial-gradient(circle at 50% 40%, #2a3440, #0c0f13); cursor: pointer; text-align: center; }
+	#start h1 { margin: 0; font: 600 34px/1.1 Tahoma, Arial, sans-serif; letter-spacing: 1px; }
+	#start p { margin: 0; color: #b8c0c8; font-size: 14px; max-width: 520px; line-height: 1.5; }
+	#start .go { margin-top: 8px; padding: 10px 26px; font: 600 15px Tahoma, Arial, sans-serif; border-radius: 4px; border: 1px solid #6c8; background: #2f6b46; color: #fff; }
+	#start .status { font-size: 12px; color: #8a96a2; min-height: 1em; }
+	#start.loading { cursor: progress; } #start.loading .go { opacity: .5; }
+</style>
+</head>
+<body>
+<div id="screen"></div>
+<div id="start" class="loading">
+	<h1>Point 236</h1>
+	<p>Miroslav N&#283;me&#269;ek's 2001 ant shooter, running on the original Peter runtime compiled to WebAssembly.</p>
+	<button class="go" type="button">Click to start</button>
+	<div class="status">Loading&hellip;</div>
+</div>
+<script src="peter.js"></script>
+<script>
+var startEl = document.getElementById('start');
+var statusEl = startEl.querySelector('.status');
+var DATA_URL = 'point236.json', EXE_WIN = 'C:\\POINT236\\POINT236.EXE';
+var ready = false, started = false;
+function mkdirs(p) { var parts = p.split('/').filter(Boolean), cur = ''; parts.forEach(function (x) { cur += '/' + x; try { FS.mkdir(cur); } catch (e) {} }); }
+function fetchData(url) {
+	return fetch(url).then(function (r) { if (!r.ok) throw new Error(url + ': HTTP ' + r.status); return r.json(); }).then(function (j) {
+		var b = atob(j.data), u = new Uint8Array(b.length);
+		for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+		return u;
+	});
+}
+var Module = {
+	peterExe: EXE_WIN, peterImage: '/sys/program.pet', screenW: 1024, screenH: 768,
+	print: function (t) { console.log(t); },
+	printErr: function (t) { console.warn(t); },
+	preRun: [function () {
+		var idb = true;
+		try { FS.mkdir('/c'); FS.mount(IDBFS, {}, '/c'); } catch (e) { idb = false; }
+		Module.addRunDependency('files');
+		var sync = new Promise(function (res) {
+			if (!idb) return res();
+			try { FS.syncfs(true, function () { res(); }); } catch (e) { res(); }
+		});
+		var exe = fetchData(DATA_URL), sf = fetchData('soundfont.json').catch(function () { return null; });
+		Promise.all([sync, exe, sf]).then(function (r) {
+			mkdirs('/c/point236'); mkdirs('/c/temp'); mkdirs('/c/windows'); mkdirs('/sys');
+			FS.writeFile('/sys/program.pet', r[1]);
+			if (r[2]) FS.writeFile('/sys/soundfont.sf2', r[2]);
+			Module.removeRunDependency('files');
+		}).catch(function (e) { statusEl.textContent = 'Failed to load: ' + e.message; });
+		var t = 0;
+		Module.persistFS = function () { if (!idb) return; clearTimeout(t); t = setTimeout(function () { try { FS.syncfs(false, function () {}); } catch (e) {} }, 1500); };
+	}],
+	onRuntimeInitialized: function () {
+		ready = true; startEl.classList.remove('loading'); statusEl.textContent = 'Keyboard and mouse controls work as in the original game.';
+		if (location.hash === '#autostart') start();
+	},
+	onPeterExit: function () { var d = document.createElement('div'); d.className = 'pfatal'; d.style.background = '#234'; d.textContent = 'The program has ended. Reload the page to play again.'; document.getElementById('screen').appendChild(d); }
+};
+function start() {
+	if (!ready || started) return;
+	started = true;
+	PeterAudio.unlock();
+	startEl.style.display = 'none';
+	Module.callMain([]);
+}
+startEl.addEventListener('click', start);
+PeterWin.init(document.getElementById('screen'));
+</script>
+<script src="peter_rt.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+/* force-included before everything: adapt MinGW Win32 headers to wasm32 */
+#pragma once
+#include <stddef.h>
+#include <stdint.h>
+#include <time.h>
+#define _SIZE_T_DEFINED
+#define _SSIZE_T_DEFINED
+#define _PTRDIFF_T_DEFINED
+#define _INTPTR_T_DEFINED
+#define __intptr_t_defined
+#define _UINTPTR_T_DEFINED
+#define __uintptr_t_defined
+#define _WCHAR_T_DEFINED
+#define _WCTYPE_T_DEFINED
+#define _WINT_T
+#define _TIME_T_DEFINED
+#define _TIME64_T_DEFINED
+#define _TIME32_T_DEFINED
+#define _MAX_PATH 260
+#define _MAX_DRIVE 3
+#define _MAX_DIR 256
+#define _MAX_FNAME 256
+#define _MAX_EXT 256
+#define _fastcall
+#define __fastcall
+#include <wchar.h>
+// libc++ has configured itself for a non-Windows target via the includes above.
+// Only now announce Win32 to the Peter sources and the MinGW headers.
+#define _WIN32 1
+#define WIN32 1
+// Skip the x86 inline-asm intrinsics winnt.h pulls from psdk_inc/intrin-impl.h.
+#define __INTRINSIC_DEFINED___faststorefence
+#define __INTRINSIC_DEFINED___int2c
+#define __INTRINSIC_DEFINED__InterlockedAdd
+#define __INTRINSIC_DEFINED__InterlockedAdd64
+#define __INTRINSIC_DEFINED__InterlockedAnd
+#define __INTRINSIC_DEFINED__InterlockedAnd64
+#define __INTRINSIC_DEFINED__interlockedbittestandcomplement
+#define __INTRINSIC_DEFINED_InterlockedBitTestAndComplement
+#define __INTRINSIC_DEFINED__interlockedbittestandcomplement64
+#define __INTRINSIC_DEFINED_InterlockedBitTestAndComplement64
+#define __INTRINSIC_DEFINED__interlockedbittestandreset
+#define __INTRINSIC_DEFINED_InterlockedBitTestAndReset
+#define __INTRINSIC_DEFINED__interlockedbittestandreset64
+#define __INTRINSIC_DEFINED_InterlockedBitTestAndReset64
+#define __INTRINSIC_DEFINED__interlockedbittestandset
+#define __INTRINSIC_DEFINED_InterlockedBitTestAndSet
+#define __INTRINSIC_DEFINED__interlockedbittestandset64
+#define __INTRINSIC_DEFINED_InterlockedBitTestAndSet64
+#define __INTRINSIC_DEFINED__InterlockedCompareExchange
+#define __INTRINSIC_DEFINED__InterlockedCompareExchange16
+#define __INTRINSIC_DEFINED__InterlockedCompareExchange64
+#define __INTRINSIC_DEFINED__InterlockedCompareExchangePointer
+#define __INTRINSIC_DEFINED__InterlockedDecrement
+#define __INTRINSIC_DEFINED__InterlockedDecrement16
+#define __INTRINSIC_DEFINED__InterlockedDecrement64
+#define __INTRINSIC_DEFINED__InterlockedExchange
+#define __INTRINSIC_DEFINED__InterlockedExchange64
+#define __INTRINSIC_DEFINED__InterlockedExchangeAdd
+#define __INTRINSIC_DEFINED__InterlockedExchangeAdd64
+#define __INTRINSIC_DEFINED__InterlockedExchangePointer
+#define __INTRINSIC_DEFINED__InterlockedIncrement
+#define __INTRINSIC_DEFINED__InterlockedIncrement16
+#define __INTRINSIC_DEFINED__InterlockedIncrement64
+#define __INTRINSIC_DEFINED__InterlockedOr
+#define __INTRINSIC_DEFINED__InterlockedOr64
+#define __INTRINSIC_DEFINED__InterlockedXor
+#define __INTRINSIC_DEFINED__InterlockedXor64
+#define __INTRINSIC_DEFINED___readgsbyte
+#define __INTRINSIC_DEFINED___readgsdword
+#define __INTRINSIC_DEFINED___readgsqword
+#define __INTRINSIC_DEFINED___readgsword
+#define __INTRINSIC_DEFINED___stosb
+#define __INTRINSIC_DEFINED___stosd
+#define __INTRINSIC_DEFINED___stosq
+#define __INTRINSIC_DEFINED___stosw
+#define __INTRINSIC_DEFINED___writegsbyte
+#define __INTRINSIC_DEFINED___writegsword
+#define __INTRINSIC_DEFINED___movsb
+#define __INTRINSIC_DEFINED___movsw
+#define __INTRINSIC_DEFINED___movsd

@@ -1,0 +1,11 @@
+--- /usr/share/mingw-w64/include/_mingw_mac.h	2024-04-22 11:10:39.000000000 +0000
++++ winhdr/_mingw_mac.h	2026-11-20 07:21:23.303843927 +0000
+@@ -44,7 +44,7 @@
+ #  undef _X86_  /* _X86_ is not for __x86_64 */
+ #endif
+ 
+-#if defined(_X86_) && !defined(_M_IX86) && !defined(_M_IA64) \
++#if defined(_X86_) && !defined(__wasm32__) && !defined(_M_IX86) && !defined(_M_IA64) \
+    && !defined(_M_AMD64) && !defined(__x86_64)
+ #  if defined(__i486__)
+ #    define _M_IX86 400

@@ -1,0 +1,66 @@
+--- /usr/share/mingw-w64/include/winnt.h	2024-04-22 11:10:39.000000000 +0000
++++ winhdr/winnt.h	2026-11-20 07:21:11.351964357 +0000
+@@ -129,7 +129,7 @@
+ #define TYPE_ALIGNMENT(t) FIELD_OFFSET(struct { char x; t test; }, test)
+ #endif
+ 
+-#if defined (__x86_64__) || defined (__i386__)
++#if defined (__x86_64__) || defined (__i386__) || defined(__wasm32__)
+ #define PROBE_ALIGNMENT(_s) TYPE_ALIGNMENT (DWORD)
+ #elif defined (__ia64__) || defined (__arm__) || defined(__aarch64__)
+ #define PROBE_ALIGNMENT(_s) (TYPE_ALIGNMENT (_s) > TYPE_ALIGNMENT (DWORD) ? TYPE_ALIGNMENT (_s) : TYPE_ALIGNMENT (DWORD))
+@@ -196,7 +196,7 @@
+ #endif
+ 
+ #ifndef SYSTEM_CACHE_ALIGNMENT_SIZE
+-#if defined(__x86_64__) || defined(__i386__)
++#if defined(__x86_64__) || defined(__i386__) || defined(__wasm32__)
+ #define SYSTEM_CACHE_ALIGNMENT_SIZE X86_CACHE_ALIGNMENT_SIZE
+ #elif defined(__aarch64__) || defined(__arm__)
+ #define SYSTEM_CACHE_ALIGNMENT_SIZE ARM_CACHE_ALIGNMENT_SIZE
+@@ -2356,6 +2356,45 @@
+ 
+ 
+ #ifdef _X86_
++#if defined(__wasm32__)
++/* wasm32: single-threaded Interlocked replacements */
++static __inline LONG InterlockedIncrement(LONG volatile *p){return ++*p;}
++static __inline LONG InterlockedDecrement(LONG volatile *p){return --*p;}
++static __inline LONG InterlockedExchange(LONG volatile *p,LONG v){LONG o=*p;*p=v;return o;}
++static __inline LONG InterlockedExchangeAdd(LONG volatile *p,LONG v){LONG o=*p;*p+=v;return o;}
++static __inline LONG InterlockedAdd(LONG volatile *p,LONG v){return *p+=v;}
++static __inline LONG InterlockedCompareExchange(LONG volatile *p,LONG x,LONG c){LONG o=*p;if(o==c)*p=x;return o;}
++static __inline LONG InterlockedAnd(LONG volatile *p,LONG v){LONG o=*p;*p&=v;return o;}
++static __inline LONG InterlockedOr(LONG volatile *p,LONG v){LONG o=*p;*p|=v;return o;}
++static __inline LONG InterlockedXor(LONG volatile *p,LONG v){LONG o=*p;*p^=v;return o;}
++static __inline LONG64 InterlockedCompareExchange64(LONG64 volatile *p,LONG64 x,LONG64 c){LONG64 o=*p;if(o==c)*p=x;return o;}
++static __inline SHORT InterlockedIncrement16(SHORT volatile *p){return ++*p;}
++static __inline SHORT InterlockedDecrement16(SHORT volatile *p){return --*p;}
++static __inline SHORT InterlockedCompareExchange16(SHORT volatile *p,SHORT x,SHORT c){SHORT o=*p;if(o==c)*p=x;return o;}
++static __inline PVOID InterlockedExchangePointer(PVOID volatile *p,PVOID v){PVOID o=*p;*p=v;return o;}
++static __inline PVOID InterlockedCompareExchangePointer(PVOID volatile *p,PVOID x,PVOID c){PVOID o=*p;if(o==c)*p=x;return o;}
++#define InterlockedIncrementAcquire InterlockedIncrement
++#define InterlockedIncrementRelease InterlockedIncrement
++#define InterlockedDecrementAcquire InterlockedDecrement
++#define InterlockedDecrementRelease InterlockedDecrement
++#define InterlockedCompareExchangeAcquire InterlockedCompareExchange
++#define InterlockedCompareExchangeRelease InterlockedCompareExchange
++#define InterlockedCompareExchangeAcquire64 InterlockedCompareExchange64
++#define InterlockedCompareExchangeRelease64 InterlockedCompareExchange64
++#define InterlockedExchangeAcquire64 InterlockedExchange64
++#define InterlockedAndAffinity InterlockedAnd64
++#define InterlockedOrAffinity InterlockedOr64
++#define InterlockedCompareExchangePointerAcquire InterlockedCompareExchangePointer
++#define InterlockedCompareExchangePointerRelease InterlockedCompareExchangePointer
++#define YieldProcessor() ((void)0)
++#define MemoryBarrier() ((void)0)
++#define PreFetchCacheLine(l,a)
++#define PrefetchForWrite(p)
++#define ReadForWriteAccess(p) (*(p))
++#define DbgRaiseAssertionFailure() __builtin_trap()
++#define PF_TEMPORAL_LEVEL_1
++#define PF_NON_TEMPORAL_LEVEL_ALL
++#endif
+ 
+ #if defined(__i386__) && !defined(__x86_64) && !defined(RC_INVOKED)
+ #ifdef __cplusplus

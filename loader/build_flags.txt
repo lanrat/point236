@@ -1,0 +1,1 @@
+-include prelude.h -fshort-wchar -fms-extensions -fdeclspec -D_WINDOWS -DNDEBUG -D_OPTIM -D_X86_ -Wno-everything -mnontrapping-fptoint  -ferror-limit=0 
