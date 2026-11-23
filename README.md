@@ -1,5 +1,7 @@
 # Point 236: WebAssembly port of the Peter runtime
 
+**Play it in your browser: https://lanrat.github.io/point236/**
+
 `loader/` is the original Peter 2.50 Loader (runtime) source by Miroslav Němeček
 (https://breatharian.eu/Petr/en/download.htm). File names are lowercased and include
 paths normalised. Changes for wasm:
